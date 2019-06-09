@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.util.List;
 
 public class NoteDataAdapter extends BaseAdapter {
@@ -15,6 +16,7 @@ public class NoteDataAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private NoteRepository baseNotes = App.getBaseNotes();
     Context conxt;
+    private DateFormat dateFormat = App.getDateFormat();
 
 
     public NoteDataAdapter(Context conxt, List<Note> notes) {
@@ -25,8 +27,6 @@ public class NoteDataAdapter extends BaseAdapter {
 
     void removeNote(int position) {
         notes.remove(position);
-        Note note = getNote(position);
-        baseNotes.deleteNote(note);
         notifyDataSetChanged();
     }
 
@@ -65,8 +65,12 @@ public class NoteDataAdapter extends BaseAdapter {
 
         title.setText(note.getTitle());
         subtitle.setText(note.getSubtitle());
-        deadline.setText(note.getDeadline());
-
+        if (note.getDeadline() != null) {
+            deadline.setVisibility(View.VISIBLE);
+            deadline.setText(dateFormat.format(note.getDeadline()));
+        } else {
+            deadline.setVisibility(View.GONE);
+        }
         visibilityView(title, subtitle, deadline, note);
 
         return view;
@@ -86,13 +90,6 @@ public class NoteDataAdapter extends BaseAdapter {
             subtitle.setText(note.getSubtitle());
         } else {
             subtitle.setVisibility(View.GONE);
-        }
-
-        if (!deadline.getText().toString().equals("")) {
-            deadline.setVisibility(View.VISIBLE);
-            deadline.setText(note.getDeadline());
-        } else {
-            deadline.setVisibility(View.GONE);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.notes;
 
 import android.content.Context;
 
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
@@ -12,7 +13,6 @@ import io.realm.Sort;
 public class BaseNotes implements NoteRepository {
 
     RealmConfiguration realmConfig;
-
 
     public BaseNotes(Context context) {
         Realm.init(context);
@@ -57,7 +57,7 @@ public class BaseNotes implements NoteRepository {
     }
 
     @Override
-    public void updateNote(String idNote, String title, String subtitle, String deadline) {
+    public void updateNote(String idNote, String title, String subtitle, Date deadline) {
         Realm realm = Realm.getInstance(realmConfig);
         realm.beginTransaction();
 
@@ -73,15 +73,30 @@ public class BaseNotes implements NoteRepository {
     }
 
     @Override
-    public void deleteNote(Note note) {
+    public void updateNote(String idNote, String title, String subtitile) {
         Realm realm = Realm.getInstance(realmConfig);
         realm.beginTransaction();
 
-        RealmResults<Note> results = realm.where(Note.class).equalTo("idNote",
-                note.getIdNote()).findAll();
-        results.deleteAllFromRealm();
+        Note realmNote = realm.where(Note.class).equalTo("idNote", idNote).findFirst();
+
+        realmNote.setTitle(title);
+        realmNote.setSubtitle(subtitile);
+
 
         realm.commitTransaction();
         realm.close();
     }
+
+    @Override
+    public void deleteNote(String idNote) {
+        Realm realm = Realm.getInstance(realmConfig);
+        realm.beginTransaction();
+
+        Note realmNote = realm.where(Note.class).equalTo("idNote", idNote).findFirst();
+        realmNote.deleteFromRealm();
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
 }

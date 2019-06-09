@@ -23,6 +23,7 @@ public class ListActivity extends AppCompatActivity {
 
     private List<Note> notes = new ArrayList<>();
     private NoteRepository baseNotes;
+    private String idNote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +84,15 @@ public class ListActivity extends AppCompatActivity {
             builder.setNegativeButton(R.string.cancel, (dialog, which) ->
                     dialog.cancel());
 
-            builder.setPositiveButton(R.string.delete, (dialog, which) ->
-                    adapter.removeNote(position));
+            builder.setPositiveButton(R.string.delete, (dialog, which) -> {
+                    Note note = (Note) adapter.getItem(position);
+                    idNote = note.getIdNote();
+                    baseNotes.deleteNote(note.getIdNote());
+                    adapter.removeNote(position);
+            }
+
+            );
+
             AlertDialog alert = builder.create();
             alert.show();
 

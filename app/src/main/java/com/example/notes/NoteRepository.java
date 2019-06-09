@@ -1,5 +1,6 @@
 package com.example.notes;
 
+import java.util.Date;
 import java.util.List;
 
 public interface NoteRepository {
@@ -7,6 +8,7 @@ public interface NoteRepository {
 
     Note getNote(String idNote);
     void saveNote(Note note);
-    void updateNote(String idNote, String title, String subtitle, String deadline);
-    void deleteNote(Note note);
+    void updateNote(String idNote, String title, String subtitle, Date deadline);
+    void updateNote(String idNote, String title, String subtitile);
+    void deleteNote(String idNote);
 }

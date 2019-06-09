@@ -2,6 +2,7 @@ package com.example.notes;
 
 import androidx.annotation.Nullable;
 
+import java.util.Date;
 import java.util.Objects;
 
 import io.realm.RealmObject;
@@ -15,17 +16,23 @@ public class Note extends RealmObject {
 
     private String title;
     private String subtitle;
-    private String deadline;
+    private Date deadline;
 
     public Note() {
 
     }
 
-    public Note(String title, String subtitle, String deadline) {
+    public Note(String title, String subtitle, Date deadline) {
         this.title = title;
         this.subtitle = subtitle;
         this.deadline = deadline;
         this.idNote = String.valueOf(Objects.hash(this.title, this.subtitle, this.deadline));
+    }
+
+    public Note (String title, String subtitle) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.idNote = String.valueOf(Objects.hash(this.title, this.subtitle));
     }
 
     public String getIdNote() {
@@ -48,11 +55,11 @@ public class Note extends RealmObject {
         this.subtitle = subtitle;
     }
 
-    public String getDeadline() {
+    public Date getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(String deadline) {
+    public void setDeadline(Date deadline) {
         this.deadline = deadline;
     }
 

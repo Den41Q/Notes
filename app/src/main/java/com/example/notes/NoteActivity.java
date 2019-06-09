@@ -7,6 +7,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,10 +16,13 @@ import android.widget.Toast;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 
 
-public class NoteActivity extends AppCompatActivity {
+public class  NoteActivity extends AppCompatActivity {
 
     private EditText inputDeadline;
     private MaterialCheckBox checkBoxDeadline;
@@ -29,6 +33,9 @@ public class NoteActivity extends AppCompatActivity {
     private NoteRepository baseNotes;
     private String idNote;
     private Note changedNote;
+
+    private DateFormat dateFormat;
+    private Date deadlineTime;
 
 
     @Override
@@ -80,13 +87,19 @@ public class NoteActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         baseNotes = App.getBaseNotes();
+        dateFormat = App.getDateFormat();
     }
 
     public void createDeadline(View view) {
 
         final Calendar todayCalendar = Calendar.getInstance();
         DatePickerDialog.OnDateSetListener onDateSet = (view1, year, month, dayOfMonth) -> {
-            inputDeadline.setText(dayOfMonth + "." + (month + 1) + "." + year);
+            String initDay = String.valueOf(dayOfMonth);
+            String initMonth = String.valueOf(month + 1);
+            String initYear = String.valueOf(year);
+
+            inputDeadline.setText((initDay.length() > 1 ? initDay : "0" + initDay) + "."
+                    + ((initMonth.length() > 1 ? initMonth : "0" + initMonth)) + "." + initYear);
             if (!checkBoxDeadline.isChecked()) {
                 inputDeadline.setText("");
             }
@@ -112,13 +125,30 @@ public class NoteActivity extends AppCompatActivity {
         String subtitle = inputSubtitle.getText().toString();
         String deadline = inputDeadline.getText().toString();
 
-        if ("".equals(idNote)) {
-            Note note = new Note(title, subtitle, deadline);
-            baseNotes.saveNote(note);
-            Toast.makeText(this, "Заметка добавлена", Toast.LENGTH_LONG).show();
+        try {
+            deadlineTime = dateFormat.parse(deadline);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (deadline.equals("")) {
+            if ("".equals(idNote)) {
+                Note note = new Note(title, subtitle);
+                baseNotes.saveNote(note);
+                Toast.makeText(this, "Заметка добавлена", Toast.LENGTH_LONG).show();
+            } else {
+                baseNotes.updateNote(changedNote.getIdNote(), title, subtitle);
+                Toast.makeText(this, "Заметка изменена", Toast.LENGTH_LONG).show();
+            }
         } else {
-            baseNotes.updateNote(changedNote.getIdNote(), title, subtitle, deadline);
-            Toast.makeText(this, "Заметка изменена", Toast.LENGTH_LONG).show();
+            if ("".equals(idNote)) {
+                Note note = new Note(title, subtitle, deadlineTime);
+                baseNotes.saveNote(note);
+                Toast.makeText(this, "Заметка добавлена", Toast.LENGTH_LONG).show();
+            } else {
+                baseNotes.updateNote(changedNote.getIdNote(), title, subtitle, deadlineTime);
+                Toast.makeText(this, "Заметка изменена", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -128,7 +158,9 @@ public class NoteActivity extends AppCompatActivity {
 
             inputTitle.setText(changedNote.getTitle());
             inputSubtitle.setText(changedNote.getSubtitle());
-            inputDeadline.setText(changedNote.getDeadline());
+            if (changedNote.getDeadline() != null) {
+                inputDeadline.setText(dateFormat.format(changedNote.getDeadline()));
+            }
         }
     }
 }
